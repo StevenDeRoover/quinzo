@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  quinzo:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/opt/quinzo:cached
+      - ./quinzo.cfg:/etc/quinzo.cfg
+    environment:
+      - SESSION_COOKIE_HTTPONLY=True
+      - SESSION_COOKIE_SECURE=False
+      - CSRF_COOKIE_SECURE=False
+      - PYTHONUNBUFFERED=1
+      - QUINZO_CONFIG=/etc/quinzo.cfg
+    working_dir: /opt/quinzo
+    command: sleep infinity
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: quinzo
+      POSTGRES_USER: quinzo
+      POSTGRES_PASSWORD: quinzo
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

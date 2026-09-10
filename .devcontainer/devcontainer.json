@@ -1,0 +1,16 @@
+{
+    "name": "quinzo",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "quinzo",
+    "workspaceFolder": "/opt/quinzo/",
+    "remoteUser": "qz",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "bradlc.vscode-tailwindcss"
+            ]
+        }
+    }
+}

@@ -1,0 +1,29 @@
+[project]
+name = "quinzo"
+dynamic = ["version"]
+description = "A platform for to play bingo."
+readme = "README.md"
+authors = [
+    { name = "Steven De Roover", email = "stevenderoover@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "django>=6.1",
+    "psycopg[binary]",
+    "django-compressor",
+    "django-npm-dev"
+]
+
+[build-system]
+requires = [
+    "setuptools",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["quinzo*"]
+namespaces = false
+
+[tool.setuptools.dynamic]
+version = {attr = "quinzo.__version__"}
