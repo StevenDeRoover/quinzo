@@ -29,6 +29,5 @@ COPY pyproject.toml .
 RUN pip install -e .
 
 RUN cd /opt/quinzo/src && npm install
-RUN cd /opt/quinzo/src && cp node_modules/flowbite/dist/flowbite.min.js quinzo/static/quinzo/flowbite.min.js
 
 USER ${USERNAME}

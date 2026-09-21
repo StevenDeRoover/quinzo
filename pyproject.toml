@@ -10,8 +10,6 @@ requires-python = ">=3.14"
 dependencies = [
     "django>=6.1",
     "psycopg[binary]",
-    "django-compressor",
-    "django-npm-dev"
 ]
 
 [build-system]

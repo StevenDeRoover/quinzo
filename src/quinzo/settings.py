@@ -2,7 +2,7 @@ from pathlib import Path
 import configparser
 import os
 
-from .helpers.config import EnvOrParserConfig
+from .base.config import EnvOrParserConfig
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -53,9 +53,9 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    'quinzo.base',
     "django.contrib.staticfiles",
-    'compressor',
-    'quinzo'
+    'quinzo',
 ]
 
 if DEVELOPMENT:
@@ -140,14 +140,21 @@ USE_TZ = config.getboolean("django", "use_tz", fallback=True)
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STATIC_URL = "static/"
-STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'staticfiles')
-COMPRESS_ROOT = BASE_DIR / "quinzo" / "static"
+STATICFILES_DIRS = [
+    BASE_DIR / "quinzo" / "static.dist",
+]
 
-COMPRESS_ENABLED = True
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATICFILES_FINDERS = ('compressor.finders.CompressorFinder',)
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
