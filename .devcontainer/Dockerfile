@@ -21,7 +21,7 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
     && apt install -y git 
 
 ENV DEVELOPMENT=true
-RUN pip install --no-cache-dir django-npm-dev
+RUN pip install --no-cache-dir django-npm-dev django-debug-toolbar
 
 WORKDIR /opt/quinzo
 COPY . /opt/quinzo

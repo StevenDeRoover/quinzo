@@ -1,6 +1,7 @@
 from pathlib import Path
 import configparser
 import os
+import sys
 
 from .base.config import EnvOrParserConfig
 
@@ -10,7 +11,8 @@ _config = configparser.RawConfigParser()
 if 'CONFIG_FILE' in os.environ:
     config_files = [os.environ['CONFIG_FILE']]
 else:
-    config_files = ['/etc/quinzo.cfg', os.path.expanduser('~/.quinzo.cfg'), 'quinzo.cfg']
+    config_files = ['/etc/quinzo.cfg',
+                    os.path.expanduser('~/.quinzo.cfg'), 'quinzo.cfg']
 
 _config.read(config_files)
 config = EnvOrParserConfig(_config)
@@ -44,7 +46,6 @@ LOGGING = {
 }
 
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -55,7 +56,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     'quinzo.base',
     "django.contrib.staticfiles",
-    'quinzo',
+    'quinzo.control',
+    'quinzo.main',
+    'quinzo.multidomain'
 ]
 
 if DEVELOPMENT:
@@ -71,7 +74,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "quinzo.urls"
+ROOT_URLCONF = 'quinzo.multidomain.configs.main'
 
 TEMPLATES = [
     {
@@ -97,15 +100,24 @@ WSGI_APPLICATION = "quinzo.wsgi.application"
 # =====================================================
 # Database
 # =====================================================
+db_backend = config.get('database', 'backend',
+                        fallback='sqlite3').removeprefix('django.db.backends.')
+if db_backend.endswith('psycopg2'):
+    db_backend = 'postgresql'
+elif 'mysql' in db_backend:
+    print("Quinzo does not support running on MySQL/MariaDB")
+    sys.exit(1)
+
 DATABASES = {
     "default": {
-        "ENGINE": config.get("database", "engine", fallback="django.db.backends.postgresql"),
+        "ENGINE": 'django.db.backends.' + db_backend,
         "NAME": config.get("database", "name"),
         "USER": config.get("database", "user"),
         "PASSWORD": config.get("database", "password"),
         "HOST": config.get("database", "host"),
         "PORT": config.get("database", "port", fallback="5432"),
-        "CONN_MAX_AGE": config.getint("database", "conn_max_age", fallback=60),
+        'CONN_MAX_AGE': 0 if db_backend == 'sqlite3' else 120,
+        'CONN_HEALTH_CHECKS': db_backend != 'sqlite3'
     }
 }
 
@@ -127,6 +139,24 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+if DEBUG:
+    try:
+        import debug_toolbar  # noqa: F401
+        import debug_toolbar.settings
+    except ImportError:
+        DEBUG_TOOLBAR_INSTALLED = False
+    else:
+        DEBUG_TOOLBAR_INSTALLED = True
+        INSTALLED_APPS.append("debug_toolbar")
+        MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+        DEBUG_TOOLBAR_CONFIG = {
+            'JQUERY_URL': '',
+            'DISABLE_PANELS': debug_toolbar.settings.PANELS_DEFAULTS,
+        }
+else:
+    DEBUG_TOOLBAR_INSTALLED = False
+
+INTERNAL_IPS = ('127.0.0.1', '::1')
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
@@ -142,6 +172,7 @@ USE_TZ = config.getboolean("django", "use_tz", fallback=True)
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [
+    BASE_DIR / "quinzo" / "static",
     BASE_DIR / "quinzo" / "static.dist",
 ]
 
@@ -165,6 +196,8 @@ MAILERS = {
     },
 }
 
-SESSION_COOKIE_HTTPONLY = os.environ.get("SESSION_COOKIE_HTTPONLY", "True") == "True"
-SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "True") == "True"
+SESSION_COOKIE_HTTPONLY = os.environ.get(
+    "SESSION_COOKIE_HTTPONLY", "True") == "True"
+SESSION_COOKIE_SECURE = os.environ.get(
+    "SESSION_COOKIE_SECURE", "True") == "True"
 CSRF_COOKIE_SECURE = os.environ.get("CSRF_COOKIE_SECURE", "True") == "True"
