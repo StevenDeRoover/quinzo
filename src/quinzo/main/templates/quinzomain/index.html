@@ -1,7 +1,48 @@
-<!-- templates/index.html -->
-
-{% extends "quinzobase/_base.html" %}
+{% extends "quinzocontrol/auth/base.html" %}
+{% load i18n static %}
 
 {% block content %}
-<div>The link to /control</div>
-{% endblock content %}
+
+<div class="bg-neutral-primary-soft block w-full max-w-sm rounded-base border border-default p-8 shadow-xs">
+
+    <div class="mb-6 flex justify-center">
+        <img
+            src="{% static 'quinzobase/images/logo.svg' %}"
+            alt="Quinzo"
+            class="h-16 w-auto"
+        >
+    </div>
+
+    <h1 class="mb-5 text-center text-2xl font-semibold tracking-tight text-heading">
+        {% trans "Hallo!" %}
+    </h1>
+
+    <p class="mb-4 text-body">
+        {% blocktrans trimmed %}
+            Dit is een zelfgehoste installatie van
+            <a href="https://quinzo.org/" class="font-medium text-fg-brand hover:underline">
+                Quinzo, jouw vrije en open-source platform voor bingo en kienen
+            </a>.
+        {% endblocktrans %}
+    </p>
+
+    <p class="mb-4 text-body">
+        {% trans "Als je bingo of kienen wilt spelen, moet je een directe link volgen naar een evenement of organisatorprofiel." %}
+    </p>
+    {% url 'control:index' as control_url %}
+    <p class="mb-4 text-body">
+        {% blocktrans trimmed with control_url=control_url %}
+            Als je deze installatie wilt instellen,
+            <a href="{{ control_url }}" class="font-medium text-fg-brand hover:underline">
+                klik je hier
+            </a>.
+        {% endblocktrans %}
+    </p>
+
+    <p class="text-body">
+        {% trans "Veel plezier!" %}
+    </p>
+
+</div>
+
+{% endblock %}

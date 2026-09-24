@@ -21,6 +21,13 @@ export default defineConfig({
     ],
 
     build: {
+        watch: {
+            include: [
+                'quinzo/base/**/*.html',
+                'quinzo/main/**/*.html',
+                'quinzo/control/**/*.html'
+            ],
+        },
         rollupOptions: {
             input: {
                 output: './quinzo/static/quinzobase/css/input.css',
